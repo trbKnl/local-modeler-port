@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Port: A software tool for digital data donation"
+version: "8.90"
+doi: 10.21105/joss.05596
+authors:
+  - family-names: Boeschoten
+    given-names: Laura
+    orcid: "https://orcid.org/0000-0002-3536-0474"
+  - family-names: de Schipper
+    given-names: Niek C.
+    orcid: "https://orcid.org/0000-0002-8462-9791"
+  - family-names: Mendrik
+    given-names: Adriënne M.
+    orcid: "https://orcid.org/0000-0001-6631-7068"
+  - family-names: van der Veen
+    given-names: Emiel
+    orcid: "https://orcid.org/0000-0002-4895-6584"
+  - family-names: Struminskaya
+    given-names: Bella
+    orcid: "https://orcid.org/0000-0002-5944-8163"
+  - family-names: Janssen
+    given-names: Heleen
+    orcid: "https://orcid.org/0000-0002-2785-5741"
+  - family-names: Araujo
+    given-names: Theo
+    orcid: "https://orcid.org/0000-0002-4633-9339"
+date-released: 2023-10-03
+url: "https://doi.org/10.21105/joss.05596"
+repository-code: "https://github.com/eyra/port"
+publisher: "The Open Journal"
+journal:
+  name: "Journal of Open Source Software"
+  volume: "8"
+  issue: "90"
+  pages: "5596"
