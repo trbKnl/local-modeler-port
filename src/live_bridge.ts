@@ -1,4 +1,9 @@
-import { CommandSystem, isCommandSystem } from './framework/types/commands'
+import { 
+  CommandSystem, 
+  CommandSystemGetParameters,
+  isCommandSystem,
+  isCommandSystemGetParameters,
+} from './framework/types/commands'
 import { Bridge } from './framework/types/modules'
 
 export default class LiveBridge implements Bridge {
@@ -10,11 +15,6 @@ export default class LiveBridge implements Bridge {
 
   static create (window: Window, callback: (bridge: Bridge, locale: string) => void): void {
     window.addEventListener('message', (event) => {
-      console.log('MESSAGE RECEIVED', event)
-
-      if (event.data.action === "print") {
-        console.log(`[LiveBridge] PRINTING MESSAGE: ${event.data.message}`)
-      }
 
       if (event.data.action === 'live-init') {
         const bridge = new LiveBridge(event.ports[0])
@@ -25,12 +25,12 @@ export default class LiveBridge implements Bridge {
     })
   }
 
-  send (command: CommandSystem): void {
-    if (isCommandSystem(command)) {
+  async send (command: CommandSystem): Promise<any> {
+    if (isCommandSystemGetParameters(command)) {
+      return await this.fetchData(command)
+    } else {
       this.log('info', 'send', command)
       this.port.postMessage(command)
-    } else {
-      this.log('error', 'received unknown command', command)
     }
   }
 
@@ -38,4 +38,35 @@ export default class LiveBridge implements Bridge {
     const logger = level === 'info' ? console.log : console.error
     logger('[LiveBridge]', ...message)
   }
+
+  async fetchData(command: CommandSystem, timeOut: number = 5000): Promise<any> {
+   /**
+   * Waits for a specific message on the MessagePort matching the given command.
+   *
+   * @param command - The command to send and match against the received message.
+   * @param timeOut - Timeout in ms
+   * @returns A promise that resolves with the data from the matching message.
+   */
+    return new Promise((resolve, reject) => {
+      const action = command.__type__
+
+      const messageHandler = (event: MessageEvent) => {
+        if (event.data.action == action) {
+          window.removeEventListener('message', messageHandler)
+          console.log(`[LiveBridge] action: ${action} resolved`)
+          resolve(event.data.data) 
+        }
+      }
+
+      window.addEventListener('message', messageHandler)
+      this.port.postMessage(command)
+
+      setTimeout(() => {
+        window.removeEventListener('message', messageHandler)
+        console.log("[LiveBridge] Server timeout: could not resolve action")
+        resolve({"__type__": "PayloadError", "value": "Server timeout"})
+      }, timeOut);
+    });
+  }
 }
+

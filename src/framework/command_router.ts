@@ -22,9 +22,9 @@ export default class CommandRouter implements CommandHandler {
     })
   }
 
-  onCommandSystem (command: CommandSystem, resolve: (response: Response) => void): void {
-    this.bridge.send(command)
-    resolve({ __type__: 'Response', command, payload: { __type__: 'PayloadVoid', value: undefined } })
+  async onCommandSystem (command: CommandSystem, resolve: (response: Response) => void): Promise<void> {
+    const data = await this.bridge.send(command)
+    resolve({ __type__: 'Response', command, payload: { __type__: 'PayloadString', value: JSON.stringify(data) } })
   }
 
   onCommandUI (command: CommandUI, reject: (reason?: any) => void): void {

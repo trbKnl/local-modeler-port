@@ -38,6 +38,7 @@
     "start:app": "react-scripts start",
     "start": "concurrently 'npm run start:py' 'npm run start:app'",
     "build": "npm run build:py && npm run build:app && npm run build:css",
+    "copy": "npm run build && rm -rf ../local/priv/static/uploads/port/build && cp -R ./build/ ../local/priv/static/uploads/port/",
     "release": "npm run build && ./release.sh $npm_package_name",
     "test": "react-scripts test",
     "lint": "npm run fix:ts"

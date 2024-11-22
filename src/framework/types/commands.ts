@@ -97,10 +97,16 @@ export function isCommand (arg: any): arg is Command {
 export type CommandSystem =
   CommandSystemDonate |
   CommandSystemEvent |
-  CommandSystemExit
+  CommandSystemExit |
+  CommandSystemGetParameters |
+  CommandSystemPostParameters 
 
 export function isCommandSystem (arg: any): arg is CommandSystem {
-  return isCommandSystemDonate(arg) || isCommandSystemEvent(arg) || isCommandSystemExit(arg)
+  return isCommandSystemDonate(arg) || 
+    isCommandSystemEvent(arg) || 
+    isCommandSystemExit(arg) || 
+    isCommandSystemGetParameters(arg) ||
+    isCommandSystemPostParameters(arg)
 }
 
 export interface CommandSystemEvent {
@@ -143,3 +149,24 @@ export interface CommandUIRender {
 export function isCommandUIRender (arg: any): arg is CommandUIRender {
   return isInstanceOf<CommandUIRender>(arg, 'CommandUIRender', ['page']) && isPropsUIPage(arg.page)
 }
+
+// COMMANDS FOR DONATING PARAMETERS
+
+export interface CommandSystemGetParameters {
+  __type__: 'CommandSystemGetParameters'
+}
+export function isCommandSystemGetParameters (arg: any): arg is CommandSystemGetParameters {
+  return isInstanceOf<CommandSystemGetParameters>(arg, 'CommandSystemGetParameters', [])
+}
+
+
+export interface CommandSystemPostParameters {
+  __type__: 'CommandSystemPostParameters'
+  id: string,
+  model: string,
+  checkValue: string,
+}
+export function isCommandSystemPostParameters (arg: any): arg is CommandSystemPostParameters {
+  return isInstanceOf<CommandSystemPostParameters>(arg, 'CommandSystemPostParameters', ["id", "model",  "checkValue"])
+}
+

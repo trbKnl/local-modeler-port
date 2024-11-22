@@ -5,6 +5,13 @@ import pandas as pd
 import port.api.props as props
 import port.helpers.port_helpers as ph
 
+from port.api.commands import (
+    CommandSystemGetParameters,
+    CommandSystemPostParameters,
+)
+
+def getParameters():
+    return CommandSystemGetParameters()
 
 SUBMIT_FILE_HEADER = props.Translatable({
     "en": "Select a random zipfile of choice", 
@@ -36,6 +43,12 @@ def process(session_id: str):
         file_prompt = ph.generate_file_prompt("application/zip, text/plain")
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
 
+
+        result = yield getParameters()
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print("result from get parameters")
+        print(result.value)
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         # If the participant submitted a file: continue
         if file_prompt_result.__type__ == 'PayloadString':
 
