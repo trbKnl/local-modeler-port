@@ -99,14 +99,14 @@ export type CommandSystem =
   CommandSystemEvent |
   CommandSystemExit |
   CommandSystemGetParameters |
-  CommandSystemPostParameters 
+  CommandSystemPutParameters 
 
 export function isCommandSystem (arg: any): arg is CommandSystem {
   return isCommandSystemDonate(arg) || 
     isCommandSystemEvent(arg) || 
     isCommandSystemExit(arg) || 
     isCommandSystemGetParameters(arg) ||
-    isCommandSystemPostParameters(arg)
+    isCommandSystemPutParameters(arg)
 }
 
 export interface CommandSystemEvent {
@@ -160,13 +160,13 @@ export function isCommandSystemGetParameters (arg: any): arg is CommandSystemGet
 }
 
 
-export interface CommandSystemPostParameters {
-  __type__: 'CommandSystemPostParameters'
+export interface CommandSystemPutParameters {
+  __type__: 'CommandSystemPutParameters'
   id: string,
   model: string,
-  checkValue: string,
+  check_value: string,
 }
-export function isCommandSystemPostParameters (arg: any): arg is CommandSystemPostParameters {
-  return isInstanceOf<CommandSystemPostParameters>(arg, 'CommandSystemPostParameters', ["id", "model",  "checkValue"])
+export function isCommandSystemPutParameters (arg: any): arg is CommandSystemPutParameters {
+  return isInstanceOf<CommandSystemPutParameters>(arg, 'CommandSystemPutParameters', ["id", "model",  "check_value"])
 }
 

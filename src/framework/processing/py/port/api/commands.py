@@ -45,25 +45,21 @@ class CommandSystemExit:
 
 @dataclass
 class CommandSystemGetParameters:
-    """
-    Ask the server for a set of parameters to c
-    """
-
     def toDict(self):
         dict = {}
         dict["__type__"] = "CommandSystemGetParameters"
         return dict
 
 @dataclass
-class CommandSystemPostParameters:
+class CommandSystemPutParameters:
     id: str
     model: str
-    checkValue: str
+    check_value: str
 
     def toDict(self):
         dict = {}
-        dict["__type__"] = "CommandSystemPostParameters"
+        dict["__type__"] = "CommandSystemPutParameters"
         dict["id"] = self.id
         dict["model"] = self.model
-        dict["checkValue"] = self.checkValue
+        dict["check_value"] = self.check_value
         return dict

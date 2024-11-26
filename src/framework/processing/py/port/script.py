@@ -1,4 +1,5 @@
 import zipfile
+import json
 
 import pandas as pd
 
@@ -7,11 +8,22 @@ import port.helpers.port_helpers as ph
 
 from port.api.commands import (
     CommandSystemGetParameters,
-    CommandSystemPostParameters,
+    CommandSystemPutParameters,
 )
 
+# Local modeler helpers
 def getParameters():
     return CommandSystemGetParameters()
+
+def putParameters(run_json: str):
+    run = json.loads(run_json)
+    run["model"] = "Banaan Extremo!"
+
+    return CommandSystemPutParameters(
+        id=run["id"],
+        model=run["model"],
+        check_value=run["check_value"],
+    )
 
 SUBMIT_FILE_HEADER = props.Translatable({
     "en": "Select a random zipfile of choice", 
@@ -44,12 +56,17 @@ def process(session_id: str):
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
 
 
-        result = yield getParameters()
+        run = yield getParameters()
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         print("result from get parameters")
-        print(result.value)
+        print(run.value)
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+        print("Sendin params now")
+        yield putParameters(run.value)
+
         # If the participant submitted a file: continue
+
         if file_prompt_result.__type__ == 'PayloadString':
 
             # Validate the file the participant submitted

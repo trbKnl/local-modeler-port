@@ -1,8 +1,7 @@
 import { 
   CommandSystem, 
-  CommandSystemGetParameters,
-  isCommandSystem,
   isCommandSystemGetParameters,
+  isCommandSystemPutParameters,
 } from './framework/types/commands'
 import { Bridge } from './framework/types/modules'
 
@@ -28,6 +27,8 @@ export default class LiveBridge implements Bridge {
   async send (command: CommandSystem): Promise<any> {
     if (isCommandSystemGetParameters(command)) {
       return await this.fetchData(command)
+    } else if (isCommandSystemPutParameters(command)) {
+      return await this.fetchData(command)
     } else {
       this.log('info', 'send', command)
       this.port.postMessage(command)
@@ -47,7 +48,7 @@ export default class LiveBridge implements Bridge {
    * @param timeOut - Timeout in ms
    * @returns A promise that resolves with the data from the matching message.
    */
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const action = command.__type__
 
       const messageHandler = (event: MessageEvent) => {
