@@ -56,14 +56,15 @@ def process(session_id: str):
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
 
 
-        run = yield getParameters()
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        print("result from get parameters")
-        print(run.value)
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
-        print("Sendin params now")
-        yield putParameters(run.value)
+        run = yield getParameters()
+        while run.value != "null": # TODO: restrict this to x runs
+            yield putParameters(run.value)
+            print("Parameters send to the backend")
+            run = yield getParameters()
+
+        print("Done sending parameters to the server")
+
 
         # If the participant submitted a file: continue
 

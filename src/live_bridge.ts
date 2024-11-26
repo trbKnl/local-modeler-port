@@ -51,8 +51,15 @@ export default class LiveBridge implements Bridge {
     return new Promise((resolve) => {
       const action = command.__type__
 
+      const timeoutId = setTimeout(() => {
+        window.removeEventListener('message', messageHandler)
+        console.log("[LiveBridge] Server timeout: could not resolve action")
+        resolve({"__type__": "PayloadError", "value": "Server timeout"})
+      }, timeOut)
+
       const messageHandler = (event: MessageEvent) => {
         if (event.data.action == action) {
+          clearTimeout(timeoutId)
           window.removeEventListener('message', messageHandler)
           console.log(`[LiveBridge] action: ${action} resolved`)
           resolve(event.data.data) 
@@ -62,12 +69,7 @@ export default class LiveBridge implements Bridge {
       window.addEventListener('message', messageHandler)
       this.port.postMessage(command)
 
-      setTimeout(() => {
-        window.removeEventListener('message', messageHandler)
-        console.log("[LiveBridge] Server timeout: could not resolve action")
-        resolve({"__type__": "PayloadError", "value": "Server timeout"})
-      }, timeOut);
-    });
+    })
   }
 }
 
