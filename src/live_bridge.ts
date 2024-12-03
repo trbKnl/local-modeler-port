@@ -2,8 +2,9 @@ import {
   CommandSystem, 
   isCommandSystemGetParameters,
   isCommandSystemPutParameters,
+  Payload,
 } from './framework/types/commands'
-import { Bridge } from './framework/types/modules'
+import { Bridge } from "./framework/types/modules"
 
 export default class LiveBridge implements Bridge {
   port: MessagePort
@@ -24,14 +25,13 @@ export default class LiveBridge implements Bridge {
     })
   }
 
-  async send (command: CommandSystem): Promise<any> {
-    if (isCommandSystemGetParameters(command)) {
-      return await this.fetchData(command)
-    } else if (isCommandSystemPutParameters(command)) {
-      return await this.fetchData(command)
+  async send(command: CommandSystem): Promise<Payload> {
+    if (isCommandSystemGetParameters(command) || isCommandSystemPutParameters(command)) {
+      return this.fetchData(command)
     } else {
-      this.log('info', 'send', command)
+      this.log('info', 'send', command);
       this.port.postMessage(command)
+      return { "__type__": "PayloadVoid", value: undefined }
     }
   }
 
@@ -40,7 +40,7 @@ export default class LiveBridge implements Bridge {
     logger('[LiveBridge]', ...message)
   }
 
-  async fetchData(command: CommandSystem, timeOut: number = 5000): Promise<any> {
+  async fetchData(command: CommandSystem, timeOut: number = 5000): Promise<Payload> {
    /**
    * Waits for a specific message on the MessagePort matching the given command.
    *
@@ -62,7 +62,10 @@ export default class LiveBridge implements Bridge {
           clearTimeout(timeoutId)
           window.removeEventListener('message', messageHandler)
           console.log(`[LiveBridge] action: ${action} resolved`)
-          resolve(event.data.data) 
+          const data = JSON.parse(event.data.data)
+          // could add checking "isPayload",
+          // however, the type system is annoying it needs to be changed to something like zod
+          resolve(data) 
         }
       }
 

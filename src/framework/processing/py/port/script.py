@@ -55,8 +55,6 @@ def process(session_id: str):
         file_prompt = ph.generate_file_prompt("application/zip, text/plain")
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
 
-
-
         run = yield getParameters()
         while run.value != "null": # TODO: restrict this to x runs
             yield putParameters(run.value)

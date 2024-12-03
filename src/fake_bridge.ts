@@ -1,8 +1,7 @@
-import { CommandSystem, CommandSystemDonate, CommandSystemExit, isCommandSystemDonate, isCommandSystemExit } from './framework/types/commands'
-import { Bridge } from './framework/types/modules'
+import { Payload, CommandSystem, CommandSystemDonate, CommandSystemExit, isCommandSystemDonate, isCommandSystemExit } from './framework/types/commands'
 
-export default class FakeBridge implements Bridge {
-  send (command: CommandSystem): void {
+export default class FakeBridge {
+  send (command: CommandSystem): Promise<Payload> {
     if (isCommandSystemDonate(command)) {
       this.handleDonation(command)
     } else if (isCommandSystemExit(command)) {
@@ -10,6 +9,7 @@ export default class FakeBridge implements Bridge {
     } else {
       console.log('[FakeBridge] received unknown command: ' + JSON.stringify(command))
     }
+    return Promise.resolve({"__type__": "PayloadVoid", "value": undefined});
   }
 
   handleDonation (command: CommandSystemDonate): void {

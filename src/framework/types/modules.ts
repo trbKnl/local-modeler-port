@@ -1,4 +1,4 @@
-import { Command, Response, CommandSystem, CommandUI } from './commands'
+import { Command, Response, CommandSystem, CommandUI, Payload } from './commands'
 
 export interface ProcessingEngine {
   start: () => void
@@ -13,7 +13,7 @@ export interface VisualisationEngine {
 }
 
 export interface Bridge {
-  send: (command: CommandSystem) => void
+  send: (command: CommandSystem) => Promise<Payload>
 }
 
 export interface CommandHandler {
