@@ -54,6 +54,7 @@ export default class LiveBridge implements Bridge {
       const timeoutId = setTimeout(() => {
         window.removeEventListener('message', messageHandler)
         console.log("[LiveBridge] Server timeout: could not resolve action")
+
         resolve({"__type__": "PayloadError", "value": "Server timeout"})
       }, timeOut)
 
@@ -62,10 +63,10 @@ export default class LiveBridge implements Bridge {
           clearTimeout(timeoutId)
           window.removeEventListener('message', messageHandler)
           console.log(`[LiveBridge] action: ${action} resolved`)
-          const data = JSON.parse(event.data.data)
+
           // could add checking "isPayload",
           // however, the type system is annoying it needs to be changed to something like zod
-          resolve(data) 
+          resolve(event.data.data) 
         }
       }
 

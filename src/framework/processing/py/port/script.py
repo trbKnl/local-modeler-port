@@ -56,7 +56,7 @@ def process(session_id: str):
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
 
         run = yield getParameters()
-        while run.value != "null": # TODO: restrict this to x runs
+        while run.__type__ != "PayloadError": # TODO: restrict this to x runs
             yield putParameters(run.value)
             print("Parameters send to the backend")
             run = yield getParameters()
