@@ -1,4 +1,5 @@
 import zipfile
+import time
 
 import pandas as pd
 
@@ -27,6 +28,10 @@ RETRY_HEADER = props.Translatable({
     "nl": "Probeer opnieuw"
 })
 
+PLEASE_WAIT_HEADER = props.Translatable({
+    "en": "Please wait", 
+    "nl": "Nog even wachten, alstublieft"
+})
 
 def process(session_id: str):
     platform_name = "Platform of interest"
@@ -36,6 +41,9 @@ def process(session_id: str):
         # Ask the participant to submit a file
         file_prompt = ph.generate_file_prompt("application/zip, text/plain")
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
+
+        message = prompt_extraction_message("")
+        yield ph.render_page(RETRY_HEADER, message)
 
         # run lda
         # study is called "test"
@@ -166,3 +174,10 @@ def validate_the_participants_input(zip_file: str) -> bool:
         return False
 
 
+def prompt_extraction_message(message):
+    description = props.Translatable({
+        "en": "We are learning from your data. Please wait, this can take up to 5 minutes.",
+        "nl": "We zijn aan het leren van uw data, nog even wachten alstublieft, dit duurt maximaal 5 minuten."
+    })
+
+    return props.PropsUIPromptProgress(description, message)
