@@ -1,29 +1,11 @@
 import zipfile
-import json
 
 import pandas as pd
 
 import port.api.props as props
 import port.helpers.port_helpers as ph
-
-from port.api.commands import (
-    CommandSystemGetParameters,
-    CommandSystemPutParameters,
-)
-
-# Local modeler helpers
-def getParameters():
-    return CommandSystemGetParameters()
-
-def putParameters(run_json: str):
-    run = json.loads(run_json)
-    run["model"] = "Banaan Extremo!"
-
-    return CommandSystemPutParameters(
-        id=run["id"],
-        model=run["model"],
-        check_value=run["check_value"],
-    )
+import port.lda as lda
+import port.ols as ols
 
 SUBMIT_FILE_HEADER = props.Translatable({
     "en": "Select a random zipfile of choice", 
@@ -55,14 +37,19 @@ def process(session_id: str):
         file_prompt = ph.generate_file_prompt("application/zip, text/plain")
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
 
-        run = yield getParameters()
-        while run.__type__ != "PayloadError": # TODO: restrict this to x runs
-            yield putParameters(run.value)
-            print("Parameters send to the backend")
-            run = yield getParameters()
+        # run lda
+        # study is called "test"
+        run = yield lda.getParameters()
+        while run.__type__ != "PayloadError": 
+            yield lda.putParameters(run.value, ["a", "b", "c"])
+            run = yield lda.getParameters()
 
-        print("Done sending parameters to the server")
-
+        # run OLS
+        # study is called "regression"
+        run = yield ols.getParameters()
+        while run.__type__ != "PayloadError": 
+            yield ols.putParameters(run.value)
+            run = yield ols.getParameters()
 
         # If the participant submitted a file: continue
 
@@ -173,7 +160,7 @@ def validate_the_participants_input(zip_file: str) -> bool:
     """
 
     try:
-        with zipfile.ZipFile(zip_file) as zf:
+        with zipfile.ZipFile(zip_file) as _:
             return True
     except zipfile.BadZipFile:
         return False

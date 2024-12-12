@@ -45,14 +45,18 @@ class CommandSystemExit:
 
 @dataclass
 class CommandSystemGetParameters:
+    study_id: str
+
     def toDict(self):
         dict = {}
         dict["__type__"] = "CommandSystemGetParameters"
+        dict["study_id"] = self.study_id
         return dict
 
 @dataclass
 class CommandSystemPutParameters:
     id: str
+    study_id: str
     model: str
     check_value: str
 
@@ -60,6 +64,7 @@ class CommandSystemPutParameters:
         dict = {}
         dict["__type__"] = "CommandSystemPutParameters"
         dict["id"] = self.id
+        dict["study_id"] = self.study_id
         dict["model"] = self.model
         dict["check_value"] = self.check_value
         return dict
