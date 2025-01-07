@@ -29,8 +29,8 @@ RETRY_HEADER = props.Translatable({
 })
 
 PLEASE_WAIT_HEADER = props.Translatable({
-    "en": "Please wait", 
-    "nl": "Nog even wachten, alstublieft"
+    "en": "We are learning from your data", 
+    "nl": "We zijn aan het leren van uw data"
 })
 
 def process(session_id: str):
@@ -42,24 +42,25 @@ def process(session_id: str):
         file_prompt = ph.generate_file_prompt("application/zip, text/plain")
         file_prompt_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
 
-        message = prompt_extraction_message("")
-        yield ph.render_page(RETRY_HEADER, message)
+        # If the participant submitted a file: continue
 
-        # run lda
+        # Start 
+        message = prompt_extraction_message("Please wait")
+        yield ph.render_page(PLEASE_WAIT_HEADER, message)
+
+        # Run lda
         # study is called "test"
         run = yield lda.getParameters()
         while run.__type__ != "PayloadError": 
             yield lda.putParameters(run.value, ["a", "b", "c"])
             run = yield lda.getParameters()
 
-        # run OLS
+        # Run OLS
         # study is called "regression"
         run = yield ols.getParameters()
         while run.__type__ != "PayloadError": 
             yield ols.putParameters(run.value)
             run = yield ols.getParameters()
-
-        # If the participant submitted a file: continue
 
         if file_prompt_result.__type__ == 'PayloadString':
 

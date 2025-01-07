@@ -3,6 +3,7 @@ import { Translator } from '../../../../translator'
 import { ReactFactoryContext } from '../../factory'
 import { PropsUIPromptProgress } from '../../../../types/prompts'
 import { ProgressBar } from '../elements/progress_bar'
+import { Spinner } from '../elements/spinner'
 
 type Props = Weak<PropsUIPromptProgress> & ReactFactoryContext
 
@@ -23,22 +24,28 @@ export const Progress = (props: Props): JSX.Element => {
     }
   }
 
-  function autoResolve (): void {
-    resolve?.({ __type__: 'PayloadTrue', value: true })
+  function autoResolve(): void {
+    setTimeout(() => {
+      resolve?.({ __type__: 'PayloadTrue', value: true })
+    }, 8000) 
   }
 
+
   // No user action possible, resolve directly to give control back to script
+  // set timeout on autoresolve on purpose so screen stays up for at least x ms
+  // so user can read the message
   autoResolve()
 
   return (
     <>
       <div id='select-panel'>
-        <div className='flex-wrap text-bodylarge font-body text-grey1 text-left'>
+        <div className='text-bodylarge font-body text-grey1 text-left'>
           {description}
         </div>
         <div className='mt-8' />
-        <div className='p-6 border-grey4 border-2 rounded'>
-          <div className='flex-wrap text-bodylarge font-body text-grey2 text-left'>
+        <div className='p-6 border-grey4 border-2 rounded flex flex-row gap-4'>
+          <Spinner color={'dark'} spinning={true} />
+          <div className='text-bodylarge font-body text-grey2 text-left'>
             {message}
           </div>
           {progressBar()}
