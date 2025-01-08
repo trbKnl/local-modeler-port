@@ -25,9 +25,7 @@ export const Progress = (props: Props): JSX.Element => {
   }
 
   function autoResolve(): void {
-    setTimeout(() => {
-      resolve?.({ __type__: 'PayloadTrue', value: true })
-    }, 8000) 
+    resolve?.({ __type__: 'PayloadTrue', value: true })
   }
 
 
