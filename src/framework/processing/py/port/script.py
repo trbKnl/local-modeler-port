@@ -11,6 +11,7 @@ import port.api.props as props
 import port.instagram as instagram
 import port.helpers.validate as validate
 import port.lda as lda
+import port.average as average
 #import port.ols as ols
 
 
@@ -55,6 +56,7 @@ def process(session_id):
     platform_name = "Instagram"
     table_list = None
     document = None
+    total_number_of_likes = None
 
     while True:
         LOGGER.info("Prompt for file for %s", platform_name)
@@ -72,7 +74,7 @@ def process(session_id):
                 LOGGER.info("Payload for %s", platform_name)
                 yield donate_logs(f"{session_id}-tracking")
 
-                extraction_result, document = extract_instagram(file_result.value)
+                extraction_result, document, total_number_of_likes = extract_instagram(file_result.value)
                 table_list = extraction_result
                 break
 
@@ -122,6 +124,14 @@ def process(session_id):
             yield lda.putParameters(run.value, [document])
             run = yield lda.getParameters()
         
+        # Run Average
+        # study is called "average"
+        if total_number_of_likes is not None:
+            run = yield average.getParameters()
+            while run.__type__ != "PayloadError": 
+                yield average.putParameters(run.value, total_number_of_likes)
+                run = yield average.getParameters()
+
         # Run OLS
         # study is called "regression"
         #run = yield ols.getParameters()
@@ -189,9 +199,10 @@ def retry_confirmation(platform):
 # Extraction function
 
 
-def extract_instagram(instagram_zip: str) -> Tuple[list[props.PropsUIPromptConsentFormTable], str]:
+def extract_instagram(instagram_zip: str) -> Tuple[list[props.PropsUIPromptConsentFormTable], str, int]:
     tables_to_render = []
     lda_dfs = []
+    total_number_of_likes = None
 
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
@@ -292,6 +303,11 @@ def extract_instagram(instagram_zip: str) -> Tuple[list[props.PropsUIPromptConse
         table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, table_description, []) 
         tables_to_render.append(table)
         df = df.drop("Value", axis=1)
+        try:
+            total_number_of_likes = int(df["Count"].sum())
+        except Exception as e:
+            LOGGER.error("Count not get the total number of likes: %s", e)
+            total_number_of_likes = None
         lda_dfs.append(df)
 
     df = instagram.liked_posts_to_df(instagram_zip)
@@ -329,7 +345,7 @@ def extract_instagram(instagram_zip: str) -> Tuple[list[props.PropsUIPromptConse
     except Exception as e:
         LOGGER.info("Could not create document: %s", e)
 
-    return (tables_to_render, document)
+    return (tables_to_render, document, total_number_of_likes)
 
 
 
