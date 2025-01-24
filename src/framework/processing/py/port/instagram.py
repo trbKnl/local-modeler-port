@@ -228,6 +228,47 @@ def following_to_df(instagram_zip: str) -> pd.DataFrame:
     return out
 
 
+def n_following_followers_to_df(instagram_zip: str):
+
+    b = eh.extract_file_from_zip(instagram_zip, "following.json")
+    data = eh.read_json_from_bytes(b)
+    unknown_value = "Unknown"
+
+    following_count = unknown_value
+    followers_count = unknown_value
+    i = 1
+
+    try:
+        items = data["relationships_following"] # pyright: ignore
+        following_count = len(items)
+
+    except Exception as e:
+        logger.error("Could not determine the number of following: %s", e)
+        following_count = unknown_value
+
+    b = eh.extract_file_from_zip(instagram_zip, f"followers_{i}.json")
+    d = eh.read_json_from_bytes(b)
+    if d:
+        followers_count = 0
+
+        while True and d:
+            try:
+                followers_count += len(d)
+
+            except Exception as e:
+                logger.error("Could not determine the number of followers: %s", e)
+                followers_count = unknown_value
+                break
+
+            i += 1
+            b = eh.extract_file_from_zip(instagram_zip, f"followers_{i}.json")
+            d = eh.read_json_from_bytes(b)
+
+    out = pd.DataFrame([(following_count, followers_count)], columns=["Aantal volgend", "Aantal volgers"]) #pyright: ignore
+    return out, (following_count, followers_count)
+
+
+
 
 def liked_comments_to_df(instagram_zip: str) -> pd.DataFrame:
 

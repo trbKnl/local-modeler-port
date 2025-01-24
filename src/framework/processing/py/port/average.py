@@ -9,7 +9,6 @@ from port.api.commands import (
     CommandSystemPutParameters,
 )
 
-STUDY_ID="average"
 
 def learn_params(number_of_likes: int, model: str | None) -> str:
     if model is None:
@@ -30,15 +29,16 @@ def learn_params(number_of_likes: int, model: str | None) -> str:
     return json.dumps(new_model)
 
 
-def getParameters(study_id=STUDY_ID):
-    return CommandSystemGetParameters(study_id=study_id)
+def getParameters(study_id):
+    return CommandSystemGetParameters(study_id)
 
-def putParameters(run_json: str, data):
+
+def putParameters(run_json: str, data, study_id):
     run = json.loads(run_json)
     new_model = learn_params(data, run["model"])
     return CommandSystemPutParameters(
         id=run["id"],
         model=new_model,
         check_value=run["check_value"],
-        study_id=STUDY_ID
+        study_id=study_id
     )

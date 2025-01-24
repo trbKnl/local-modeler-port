@@ -56,7 +56,7 @@ def process(session_id):
     platform_name = "Instagram"
     table_list = None
     document = None
-    total_number_of_likes = None
+    following_followers_tuple = None
 
     while True:
         LOGGER.info("Prompt for file for %s", platform_name)
@@ -74,7 +74,7 @@ def process(session_id):
                 LOGGER.info("Payload for %s", platform_name)
                 yield donate_logs(f"{session_id}-tracking")
 
-                extraction_result, document, total_number_of_likes = extract_instagram(file_result.value)
+                extraction_result, document, following_followers_tuple = extract_instagram(file_result.value)
                 table_list = extraction_result
                 break
 
@@ -112,34 +112,57 @@ def process(session_id):
             yield donate_logs(f"{session_id}-tracking")
             yield donate_status(f"{session_id}-DONATED", "DONATED")
 
+    start_time = time.time()
     if document is not None:
-        start_time = time.time()
         message = prompt_extraction_message("Please wait")
         yield render_page(PLEASE_WAIT_HEADER, message)
         
         # Run lda
-        # study is called "test"
-        run = yield lda.getParameters()
+        study_id = "ldafive"
+        run = yield lda.getParameters(study_id)
         while run.__type__ != "PayloadError": 
-            yield lda.putParameters(run.value, [document])
-            run = yield lda.getParameters()
+            yield lda.putParameters(run.value, 5, [document], study_id)
+            run = yield lda.getParameters(study_id)
         
-        # Run Average
-        # study is called "average"
-        if total_number_of_likes is not None:
-            run = yield average.getParameters()
-            while run.__type__ != "PayloadError": 
-                yield average.putParameters(run.value, total_number_of_likes)
-                run = yield average.getParameters()
+        study_id = "ldaten"
+        run = yield lda.getParameters(study_id)
+        while run.__type__ != "PayloadError": 
+            yield lda.putParameters(run.value, 10, [document], study_id)
+            run = yield lda.getParameters(study_id)
 
-        # Run OLS
-        # study is called "regression"
-        #run = yield ols.getParameters()
-        #while run.__type__ != "PayloadError": 
-        #    yield ols.putParameters(run.value)
-        #    run = yield ols.getParameters()
-        while time.time() - start_time < 8:
-            time.sleep(0.1) 
+        study_id = "ldatwentyfive"
+        run = yield lda.getParameters(study_id)
+        while run.__type__ != "PayloadError": 
+            yield lda.putParameters(run.value, 25, [document], study_id)
+            run = yield lda.getParameters(study_id)
+
+    # Run Average
+    study_id = "averagefollowing"
+    if following_followers_tuple is not None:
+        following_count, _ = following_followers_tuple
+        if following_count != "Unkowwn":
+            run = yield average.getParameters(study_id)
+            while run.__type__ != "PayloadError": 
+                yield average.putParameters(run.value, following_count, study_id)
+                run = yield average.getParameters(study_id)
+
+    study_id = "averagefollowers"
+    if following_followers_tuple is not None:
+        _, followers_count = following_followers_tuple
+        if followers_count != "Unkowwn":
+            run = yield average.getParameters(study_id)
+            while run.__type__ != "PayloadError": 
+                yield average.putParameters(run.value, followers_count, study_id)
+                run = yield average.getParameters(study_id)
+
+    # Run OLS
+    # study is called "regression"
+    #run = yield ols.getParameters()
+    #while run.__type__ != "PayloadError": 
+    #    yield ols.putParameters(run.value)
+    #    run = yield ols.getParameters()
+    while time.time() - start_time < 8:
+        time.sleep(0.1) 
 
     yield exit(0, "Success")
     yield render_end_page()
@@ -199,10 +222,9 @@ def retry_confirmation(platform):
 # Extraction function
 
 
-def extract_instagram(instagram_zip: str) -> Tuple[list[props.PropsUIPromptConsentFormTable], str, int]:
+def extract_instagram(instagram_zip: str):
     tables_to_render = []
     lda_dfs = []
-    total_number_of_likes = None
 
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
@@ -302,13 +324,20 @@ def extract_instagram(instagram_zip: str) -> Tuple[list[props.PropsUIPromptConse
         })
         table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, table_description, []) 
         tables_to_render.append(table)
-        df = df.drop("Value", axis=1)
-        try:
-            total_number_of_likes = int(df["Count"].sum())
-        except Exception as e:
-            LOGGER.error("Count not get the total number of likes: %s", e)
-            total_number_of_likes = None
-        lda_dfs.append(df)
+
+
+    df, following_followers_tuple = instagram.n_following_followers_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({
+            "en": "Number of following and followers",
+            "nl": "Number of following and followers",
+        })
+        table_description = props.Translatable({
+            "en": "", 
+            "nl": "", 
+        })
+        table =  props.PropsUIPromptConsentFormTable("instagram_n_following_followers", table_title, df, table_description, []) 
+        tables_to_render.append(table)
 
     df = instagram.liked_posts_to_df(instagram_zip)
     if not df.empty:
@@ -345,7 +374,7 @@ def extract_instagram(instagram_zip: str) -> Tuple[list[props.PropsUIPromptConse
     except Exception as e:
         LOGGER.info("Could not create document: %s", e)
 
-    return (tables_to_render, document, total_number_of_likes)
+    return (tables_to_render, document, following_followers_tuple)
 
 
 

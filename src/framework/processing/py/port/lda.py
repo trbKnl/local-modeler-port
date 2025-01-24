@@ -1094,22 +1094,16 @@ def learn_params(data, model: str, n_components) -> str:
     return new_model
 
 
-STUDY_ID="test"
-
-def getParameters(study_id=STUDY_ID):
+def getParameters(study_id):
     return CommandSystemGetParameters(study_id=study_id)
 
-
-def putParameters(run_json: str, data):
+def putParameters(run_json: str, n_components, data, study_id):
     run = json.loads(run_json)
-    new_model = learn_params(data, run["model"], n_components=3)
+    new_model = learn_params(data, run["model"], n_components)
 
     return CommandSystemPutParameters(
         id=run["id"],
         model=new_model,
         check_value=run["check_value"],
-        study_id=STUDY_ID,
+        study_id=study_id,
     )
-
-
-
