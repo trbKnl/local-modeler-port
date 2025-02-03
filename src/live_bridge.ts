@@ -40,7 +40,8 @@ export default class LiveBridge implements Bridge {
     logger('[LiveBridge]', ...message)
   }
 
-  async fetchData(command: CommandSystem, timeOut: number = 5000): Promise<Payload> {
+  // abuse of any, but the typesystem is really working against me atm
+  async fetchData(command: CommandSystem | any, timeOut: number = 10000): Promise<Payload> {
    /**
    * Waits for a specific message on the MessagePort matching the given command.
    *
@@ -50,6 +51,8 @@ export default class LiveBridge implements Bridge {
    */
     return new Promise((resolve) => {
       const action = command.__type__
+      const action_id = crypto.randomUUID();
+      command["action_id"] = action_id
 
       const timeoutId = setTimeout(() => {
         window.removeEventListener('message', messageHandler)
@@ -59,7 +62,7 @@ export default class LiveBridge implements Bridge {
       }, timeOut)
 
       const messageHandler = (event: MessageEvent) => {
-        if (event.data.action == action) {
+        if (event.data.action == action && event.data.action_id == action_id) {
           clearTimeout(timeoutId)
           window.removeEventListener('message', messageHandler)
           console.log(`[LiveBridge] action: ${action} resolved`)
@@ -67,6 +70,8 @@ export default class LiveBridge implements Bridge {
           // could add checking "isPayload",
           // however, the type system is annoying it needs to be changed to something like zod
           resolve(event.data.data) 
+        } else {
+          console.log(`[LiveBridge] action: ${action} with ${action_id} was rejected!`)
         }
       }
 
