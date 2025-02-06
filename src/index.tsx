@@ -25,7 +25,7 @@ if (process.env.REACT_APP_BUILD !== 'standalone' && process.env.NODE_ENV === 'pr
 } else {
   // Setup local development mode
   console.log('Running with fake bridge')
-  run(new FakeBridge(), 'en')
+  run(new FakeBridge(), 'nl')
 }
 
 const observer = new ResizeObserver(() => {
