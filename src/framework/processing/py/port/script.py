@@ -1,7 +1,6 @@
 import logging
 import json
 import io
-from typing import Tuple
 import time
 
 import pandas as pd
@@ -12,7 +11,7 @@ import port.instagram as instagram
 import port.helpers.validate as validate
 import port.lda as lda
 import port.average as average
-#import port.ols as ols
+import port.ols as ols
 
 
 LOG_STREAM = io.StringIO()
@@ -140,7 +139,7 @@ def process(session_id):
     study_id = "averagefollowing"
     if following_followers_tuple is not None:
         following_count, _ = following_followers_tuple
-        if following_count != "Unkown":
+        if following_count != "Unknown":
             run = yield average.getParameters(study_id)
             while run.__type__ != "PayloadError": 
                 yield average.putParameters(run.value, following_count, study_id)
@@ -149,18 +148,22 @@ def process(session_id):
     study_id = "averagefollowers"
     if following_followers_tuple is not None:
         _, followers_count = following_followers_tuple
-        if followers_count != "Unkown":
+        if followers_count != "Unknown":
             run = yield average.getParameters(study_id)
             while run.__type__ != "PayloadError": 
                 yield average.putParameters(run.value, followers_count, study_id)
                 run = yield average.getParameters(study_id)
 
     # Run OLS
-    # study is called "regression"
-    #run = yield ols.getParameters()
-    #while run.__type__ != "PayloadError": 
-    #    yield ols.putParameters(run.value)
-    #    run = yield ols.getParameters()
+    study_id = "regression"
+    if following_followers_tuple is not None:
+        following_count, followers_count = following_followers_tuple
+        if followers_count != "Unknown" and following_count != "Unknown":
+            run = yield average.getParameters(study_id)
+            while run.__type__ != "PayloadError": 
+                yield ols.putParameters(run.value, following_count, followers_count, study_id)
+                run = yield ols.getParameters(study_id)
+
     while time.time() - start_time < 8:
         time.sleep(0.1) 
 

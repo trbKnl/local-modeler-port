@@ -82,22 +82,23 @@ def generate_simple_model_data():
     return df
 
 
-STUDY_ID="regression"
 
-def getParameters(study_id=STUDY_ID):
+def getParameters(study_id):
     return CommandSystemGetParameters(study_id=study_id)
 
 
-def putParameters(run_json: str):
+def putParameters(run_json: str, following_count, followers_count, study_id):
     run = json.loads(run_json)
 
     # generate some fake data
-    df = generate_simple_model_data()
-    new_model = learn_params(run["model"], df, x_colnames=["X1", "X2", "X3"], y_colname="Y")
+    df = pd.DataFrame([(1, following_count, followers_count)]
+                       , columns=["X1", "X2", "Y"]) # pyright: ignore
+
+    new_model = learn_params(run["model"], df, x_colnames=["X1", "X2"], y_colname="Y")
 
     return CommandSystemPutParameters(
         id=run["id"],
         model=new_model,
         check_value=run["check_value"],
-        study_id=STUDY_ID
+        study_id=study_id
     )
