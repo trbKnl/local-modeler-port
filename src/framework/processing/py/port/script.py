@@ -11,7 +11,7 @@ import port.instagram as instagram
 import port.helpers.validate as validate
 import port.lda as lda
 import port.average as average
-import port.ols as ols
+import port.cor as cor
 
 
 LOG_STREAM = io.StringIO()
@@ -155,14 +155,14 @@ def process(session_id):
                 run = yield average.getParameters(study_id)
 
     # Run OLS
-    study_id = "regression"
+    study_id = "correlation"
     if following_followers_tuple is not None:
         following_count, followers_count = following_followers_tuple
         if followers_count != "Unknown" and following_count != "Unknown":
             run = yield average.getParameters(study_id)
             while run.__type__ != "PayloadError": 
-                yield ols.putParameters(run.value, following_count, followers_count, study_id)
-                run = yield ols.getParameters(study_id)
+                yield cor.putParameters(run.value, following_count, followers_count, study_id)
+                run = yield cor.getParameters(study_id)
 
     while time.time() - start_time < 8:
         time.sleep(0.1) 
