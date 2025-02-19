@@ -73,7 +73,7 @@ def accounts_not_interested_in_to_df(instagram_zip: str) -> pd.DataFrame:
         items = d["impressions_history_recs_hidden_authors"] #pyright: ignore
         for item in items:
             data = item.get("string_map_data", {})
-            account_name = data.get("Username", {}).get("value", None),
+            account_name = data.get("Username", {}).get("value", ""),
 
             datapoints.append((
                 account_name,
@@ -98,7 +98,7 @@ def posts_viewed_to_df(instagram_zip: str) -> pd.DataFrame:
         items = d["impressions_history_posts_seen"] #pyright: ignore
         for item in items:
             data = item.get("string_map_data", {})
-            account_name = data.get("Author", {}).get("value", None)
+            account_name = data.get("Author", {}).get("value", "")
             timestamp = eh.epoch_to_iso(data.get("Time", {}).get("timestamp", None))
 
             datapoints.append((
@@ -154,7 +154,7 @@ def videos_watched_to_df(instagram_zip: str) -> pd.DataFrame:
         items = d["impressions_history_videos_watched"] #pyright: ignore
         for item in items:
             data = item.get("string_map_data", {})
-            account_name = data.get("Author", {}).get("value", None)
+            account_name = data.get("Author", {}).get("value", "")
             timestamp = eh.epoch_to_iso(data.get("Time", {}).get("timestamp", None))
 
             datapoints.append((

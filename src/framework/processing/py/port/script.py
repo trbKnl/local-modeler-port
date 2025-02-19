@@ -309,9 +309,7 @@ def extract_instagram(instagram_zip: str):
         })
         table =  props.PropsUIPromptConsentFormTable("instagram_following", table_title, df, table_description) 
         tables_to_render.append(table)
-        df_copy = df.copy()
-        df_copy['count'] = 1
-        lda_dfs.append(df_copy)
+        lda_dfs.append(df)
 
     df = instagram.liked_comments_to_df(instagram_zip)
     if not df.empty:
@@ -351,7 +349,6 @@ def extract_instagram(instagram_zip: str):
         })
         table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df, table_description, []) 
         tables_to_render.append(table)
-        df = df.drop("Value", axis=1)
         lda_dfs.append(df)
 
     document = ""
@@ -363,8 +360,10 @@ def extract_instagram(instagram_zip: str):
         ]
 
         df = pd.concat(dfs, ignore_index=True)
-        word_counts = [tuple(row) for row in df.values]
-        document = " ".join([word for word, count in word_counts for _ in range(count)])
+        # make sure only non empty words can end up in the "document"
+        words = [w for w in list(df["col_1"]) if bool(w) and isinstance(w, str)]
+        document = " ".join(words)
+        print(document)
 
     except Exception as e:
         LOGGER.info("Could not create document: %s", e)
