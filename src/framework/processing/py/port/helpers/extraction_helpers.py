@@ -247,7 +247,8 @@ def epoch_to_iso(epoch_timestamp: str | int | float) -> str:
     out = str(epoch_timestamp)
     try:
         epoch_timestamp = int(float(epoch_timestamp)) 
-        out = datetime.fromtimestamp(epoch_timestamp, tz=timezone.utc).isoformat()
+        dt = datetime.fromtimestamp(epoch_timestamp, tz=timezone.utc)
+        out = dt.strftime("%Y-%m-%d %H:%M:%S")
     except (OverflowError, OSError, ValueError, TypeError) as e:
         logger.error("Could not convert epoch time timestamp, %s", e)
 

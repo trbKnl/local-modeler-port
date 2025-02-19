@@ -99,13 +99,15 @@ def posts_viewed_to_df(instagram_zip: str) -> pd.DataFrame:
         for item in items:
             data = item.get("string_map_data", {})
             account_name = data.get("Author", {}).get("value", None)
+            timestamp = eh.epoch_to_iso(data.get("Time", {}).get("timestamp", None))
 
             datapoints.append((
                 account_name,
+                timestamp,
             ))
-        out = pd.DataFrame(datapoints, columns=["Auteur"]) #pyright: ignore
-        out = out.groupby('Auteur').size().reset_index(name='Aantal')
-        out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
+        out = pd.DataFrame(datapoints, columns=["Auteur", "Datum en tijd"]) #pyright: ignore
+        #out = out.groupby('Auteur').size().reset_index(name='Aantal')
+        #out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -153,13 +155,15 @@ def videos_watched_to_df(instagram_zip: str) -> pd.DataFrame:
         for item in items:
             data = item.get("string_map_data", {})
             account_name = data.get("Author", {}).get("value", None)
+            timestamp = eh.epoch_to_iso(data.get("Time", {}).get("timestamp", None))
 
             datapoints.append((
                 account_name,
+                timestamp
             ))
-        out = pd.DataFrame(datapoints, columns=["Auteur"]) #pyright: ignore
-        out = out.groupby('Auteur').size().reset_index(name='Aantal')
-        out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
+        out = pd.DataFrame(datapoints, columns=["Auteur", "Datum en tijd"]) #pyright: ignore
+        #out = out.groupby('Auteur').size().reset_index(name='Aantal')
+        #out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -187,9 +191,11 @@ def post_comments_to_df(instagram_zip: str) -> pd.DataFrame:
             for item in d:
                 data = item.get("string_map_data", {})
                 media_owner = data.get("Media Owner", {}).get("value", "")
+                timestamp = eh.epoch_to_iso(data.get("Time", {}).get("timestamp", None))
                 if media_owner != "":
                     datapoints.append((
                         media_owner,
+                        timestamp,
                     ))
             i += 1
 
@@ -197,9 +203,9 @@ def post_comments_to_df(instagram_zip: str) -> pd.DataFrame:
             logger.error("Exception caught: %s", e)
             return pd.DataFrame()
 
-    out = pd.DataFrame(datapoints, columns=["Auteur"]) #pyright: ignore
-    out = out.groupby('Auteur').size().reset_index(name='Aantal')
-    out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
+    out = pd.DataFrame(datapoints, columns=["Auteur", "Datum en tijd"]) #pyright: ignore
+    #out = out.groupby('Auteur').size().reset_index(name='Aantal')
+    #out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
 
     return out
 
@@ -269,7 +275,6 @@ def n_following_followers_to_df(instagram_zip: str):
 
 
 
-
 def liked_comments_to_df(instagram_zip: str) -> pd.DataFrame:
 
     b = eh.extract_file_from_zip(instagram_zip, "liked_comments.json")
@@ -285,10 +290,11 @@ def liked_comments_to_df(instagram_zip: str) -> pd.DataFrame:
             datapoints.append((
                 eh.fix_latin1_string(eh.find_item(d, "title")),
                 eh.fix_latin1_string(eh.find_item(d, "value")),
+                eh.epoch_to_iso(eh.fix_latin1_string(eh.find_item(d, "timestamp"))),
             ))
-        out = pd.DataFrame(datapoints, columns=["Account naam", "Value"]) #pyright: ignore
-        out = out.groupby(['Account naam', 'Value']).size().reset_index(name='Aantal')
-        out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
+        out = pd.DataFrame(datapoints, columns=["Account naam", "Waarde", "Datum en tijd"]) #pyright: ignore
+        #out = out.groupby(['Account naam', 'Value']).size().reset_index(name='Aantal')
+        #out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -311,10 +317,11 @@ def liked_posts_to_df(instagram_zip: str) -> pd.DataFrame:
             datapoints.append((
                 eh.fix_latin1_string(eh.find_item(d, "title")),
                 eh.fix_latin1_string(eh.find_item(d, "value")),
+                eh.epoch_to_iso(eh.fix_latin1_string(eh.find_item(d, "timestamp"))),
             ))
-        out = pd.DataFrame(datapoints, columns=["Account naam", "Value"]) #pyright: ignore
-        out = out.groupby(['Account naam', 'Value']).size().reset_index(name='Aantal') #pyright: ignore
-        out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
+        out = pd.DataFrame(datapoints, columns=["Account naam", "Waarde", "Datum en tijd"]) #pyright: ignore
+        #out = out.groupby(['Account naam', 'Value']).size().reset_index(name='Aantal') #pyright: ignore
+        #out = out.sort_values(by="Aantal", ascending=False).reset_index(drop=True)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
