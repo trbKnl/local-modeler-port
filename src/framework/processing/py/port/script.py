@@ -239,7 +239,17 @@ def extract_instagram(instagram_zip: str):
             "en": "This table shows Instagram authors and the number of posts you've viewed from each of them.",
             "nl": "Deze tabel toont Instagram auteurs en het aantal posts dat je van elk van hen hebt bekeken."
         })
-        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df, table_description, []) 
+        wordcloud = {
+            "title": {"en": "", "nl": "Auteurs van bekeken posts, grootte is gebasseerd op het aantal keer gekeken"},
+            "type": "wordcloud",
+            "textColumn": "Auteur",
+        }
+        table_title = props.Translatable({"en": "Your ratings on Netflix", "nl": "Uw beoordelingen op Netflix"})
+        table_description = props.Translatable({
+            "en": "Click 'Show Table' to view these ratings per row.", 
+            "nl": "Klik op ‘Tabel tonen’ om deze beoordelingen per rij te bekijken."
+        })
+        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df, table_description, [wordcloud]) 
         tables_to_render.append(table)
         lda_dfs.append(df)
 
@@ -253,7 +263,12 @@ def extract_instagram(instagram_zip: str):
            "en": "This table shows Instagram authors and the number of videos you've watched from each of them.",
            "nl": "Deze tabel toont Instagram auteurs en het aantal video's dat je van elk van hen hebt bekeken."
         })
-        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df, table_description, []) 
+        wordcloud = {
+            "title": {"en": "", "nl": "Auteurs van bekeken videos, grootte is gebasseerd op het aantal keer gekeken"},
+            "type": "wordcloud",
+            "textColumn": "Auteur",
+        }
+        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df, table_description, [wordcloud]) 
         tables_to_render.append(table)
         lda_dfs.append(df)
 
@@ -267,7 +282,12 @@ def extract_instagram(instagram_zip: str):
            "en": "This table shows Instagram authors and the number of comments you've made on their posts.",
            "nl": "Deze tabel toont Instagram auteurs en het aantal reacties dat je hebt geplaatst op hun posts."
         })
-        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df, table_description, []) 
+        wordcloud = {
+            "title": {"en": "", "nl": "Auteurs van posts waar je een reactie onder hebt gezet, grootte is gebasseerd op het aantal reacties"},
+            "type": "wordcloud",
+            "textColumn": "Auteur",
+        }
+        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df, table_description, [wordcloud]) 
         tables_to_render.append(table)
         lda_dfs.append(df)
 
@@ -321,7 +341,12 @@ def extract_instagram(instagram_zip: str):
             "en": "This table shows all the comments you've liked on Instagram posts.", 
             "nl": "Deze tabel toont alle reacties die je leuk hebt gevonden op Instagram posts."
         })
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, table_description, []) 
+        wordcloud = {
+            "title": {"en": "", "nl": "Auteurs van comments die je hebt geliket, grootte is gebasseerd op het aantal keer geliket"},
+            "type": "wordcloud",
+            "textColumn": "Account naam",
+        }
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, table_description, [wordcloud]) 
         tables_to_render.append(table)
 
     df, following_followers_tuple = instagram.n_following_followers_to_df(instagram_zip)
@@ -347,7 +372,12 @@ def extract_instagram(instagram_zip: str):
             "en": "This table shows all Instagram posts you've liked.", 
             "nl": "Deze tabel toont alle Instagram posts die je leuk hebt gevonden."
         })
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df, table_description, []) 
+        wordcloud = {
+            "title": {"en": "", "nl": "Auteurs van posts die je hebt geliket, grootte is gebasseerd op het aantal keer geliket"},
+            "type": "wordcloud",
+            "textColumn": "Account naam",
+        }
+        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df, table_description, [wordcloud]) 
         tables_to_render.append(table)
         lda_dfs.append(df)
 
