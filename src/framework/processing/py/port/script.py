@@ -244,7 +244,6 @@ def extract_instagram(instagram_zip: str):
             "type": "wordcloud",
             "textColumn": "Auteur",
         }
-        table_title = props.Translatable({"en": "Your ratings on Netflix", "nl": "Uw beoordelingen op Netflix"})
         table_description = props.Translatable({
             "en": "Click 'Show Table' to view these ratings per row.", 
             "nl": "Klik op ‘Tabel tonen’ om deze beoordelingen per rij te bekijken."
