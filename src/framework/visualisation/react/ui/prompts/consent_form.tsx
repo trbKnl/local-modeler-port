@@ -241,5 +241,5 @@ const defaultCancelButtonLabel = new TextBundle()
 const defaultDescription = new TextBundle()
   .add('en', 'Determine whether you would like to share the data below. Carefully check the data and adjust when required. With your contribution, you help the previously described research. Thank you in advance.')
   .add('de', 'Legen Sie fest, ob Sie die untenstehenden Daten teilen möchten. Überprüfen Sie die Daten sorgfältig und passen Sie sie bei Bedarf an. Mit Ihrem Beitrag helfen Sie der zuvor beschriebenen Forschung. Vielen Dank im Voraus.')
-  .add('nl', 'Bepaal of u de onderstaande gegevens wilt delen. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw bijdrage helpt u het eerder beschreven onderzoek. Alvast hartelijk dank.')
+  .add('nl', 'Bekijk onderstaande gegevens zorgvuldig en pas zo nodig aan. Beslis vervolgens of u deze gegevens wilt delen. Met deze gegevens helpt u onderzoekers van de Universiteit Utrecht.')
 
