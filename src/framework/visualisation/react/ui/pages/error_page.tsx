@@ -48,4 +48,4 @@ const title = new TextBundle()
 
 const text = new TextBundle()
   .add('en', 'Consult the researcher, or close the page')
-  .add('nl', 'Raadpleeg de onderzoeker of sluit de pagina')
+  .add('nl', 'Neem contact op met de helpdesk en vermeld hierbij de foutmelding.')
