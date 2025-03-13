@@ -98,6 +98,7 @@ def process(session_id):
             break
 
 
+    has_donated = False
     if table_list is not None:
         LOGGER.info("Prompt consent; %s", platform_name)
         yield donate_logs(f"{session_id}-tracking")
@@ -105,67 +106,68 @@ def process(session_id):
         consent_result = yield render_page(REVIEW_DATA_HEADER, prompt)
 
         # Data was donated
-        if consent_result.__type__ == "PayloadJSON":
+        if consent_result.__type__ != "PayloadFalse":
             LOGGER.info("Data donated; %s", platform_name)
-            yield donate(f"{session_id}-{platform_name}", consent_result.value)
             yield donate_logs(f"{session_id}-tracking")
             yield donate_status(f"{session_id}-DONATED", "DONATED")
+            has_donated = True
 
-    start_time = time.time()
-    if document is not None:
-        message = prompt_extraction_message("Please wait")
-        yield render_page(PLEASE_WAIT_HEADER, message)
-        
-        # Run lda
-        study_id = "ldafive"
-        run = yield lda.getParameters(study_id)
-        while run.__type__ != "PayloadError": 
-            yield lda.putParameters(run.value, 5, [document], study_id)
+    if has_donated:
+        start_time = time.time()
+        if document is not None:
+            message = prompt_extraction_message("Please wait")
+            yield render_page(PLEASE_WAIT_HEADER, message)
+            
+            # Run lda
+            study_id = "ldafive"
             run = yield lda.getParameters(study_id)
-        
-        study_id = "ldaten"
-        run = yield lda.getParameters(study_id)
-        while run.__type__ != "PayloadError": 
-            yield lda.putParameters(run.value, 10, [document], study_id)
-            run = yield lda.getParameters(study_id)
-
-        study_id = "ldatwentyfive"
-        run = yield lda.getParameters(study_id)
-        while run.__type__ != "PayloadError": 
-            yield lda.putParameters(run.value, 25, [document], study_id)
-            run = yield lda.getParameters(study_id)
-
-    # Run Average
-    study_id = "averagefollowing"
-    if following_followers_tuple is not None:
-        following_count, _ = following_followers_tuple
-        if following_count != "Unknown":
-            run = yield average.getParameters(study_id)
             while run.__type__ != "PayloadError": 
-                yield average.putParameters(run.value, following_count, study_id)
+                yield lda.putParameters(run.value, 5, [document], study_id)
+                run = yield lda.getParameters(study_id)
+            
+            study_id = "ldaten"
+            run = yield lda.getParameters(study_id)
+            while run.__type__ != "PayloadError": 
+                yield lda.putParameters(run.value, 10, [document], study_id)
+                run = yield lda.getParameters(study_id)
+
+            study_id = "ldatwentyfive"
+            run = yield lda.getParameters(study_id)
+            while run.__type__ != "PayloadError": 
+                yield lda.putParameters(run.value, 25, [document], study_id)
+                run = yield lda.getParameters(study_id)
+
+        # Run Average
+        study_id = "averagefollowing"
+        if following_followers_tuple is not None:
+            following_count, _ = following_followers_tuple
+            if following_count != "Unknown":
                 run = yield average.getParameters(study_id)
+                while run.__type__ != "PayloadError": 
+                    yield average.putParameters(run.value, following_count, study_id)
+                    run = yield average.getParameters(study_id)
 
-    study_id = "averagefollowers"
-    if following_followers_tuple is not None:
-        _, followers_count = following_followers_tuple
-        if followers_count != "Unknown":
-            run = yield average.getParameters(study_id)
-            while run.__type__ != "PayloadError": 
-                yield average.putParameters(run.value, followers_count, study_id)
+        study_id = "averagefollowers"
+        if following_followers_tuple is not None:
+            _, followers_count = following_followers_tuple
+            if followers_count != "Unknown":
                 run = yield average.getParameters(study_id)
+                while run.__type__ != "PayloadError": 
+                    yield average.putParameters(run.value, followers_count, study_id)
+                    run = yield average.getParameters(study_id)
 
-    # Run OLS
-    study_id = "correlation"
-    if following_followers_tuple is not None:
-        following_count, followers_count = following_followers_tuple
-        if followers_count != "Unknown" and following_count != "Unknown":
-            run = yield average.getParameters(study_id)
-            while run.__type__ != "PayloadError": 
-                yield cor.putParameters(run.value, following_count, followers_count, study_id)
-                run = yield cor.getParameters(study_id)
+        # Run OLS
+        study_id = "correlation"
+        if following_followers_tuple is not None:
+            following_count, followers_count = following_followers_tuple
+            if followers_count != "Unknown" and following_count != "Unknown":
+                run = yield average.getParameters(study_id)
+                while run.__type__ != "PayloadError": 
+                    yield cor.putParameters(run.value, following_count, followers_count, study_id)
+                    run = yield cor.getParameters(study_id)
 
-    while time.time() - start_time < 8:
-        time.sleep(0.1) 
+        while time.time() - start_time < 8:
+            time.sleep(0.1) 
 
     yield exit(0, "Success")
     yield render_end_page()
@@ -356,7 +358,7 @@ def extract_instagram(instagram_zip: str):
         })
         table_description = props.Translatable({
             "en": "This table shows how many accounts you follow and how many followers you have.", 
-            "nl": "Deze tabel laat zien hoeveel accounts u volgt en hoeveel u heeft."
+            "nl": "Het aantal accounts dat u de laatste zes maanden bent gaan volgen op Instagram en het aantal accounts dat u de laatste zes maanden is gaan volgen op Instagram"
         })
         table =  props.PropsUIPromptConsentFormTable("instagram_n_following_followers", table_title, df, table_description, []) 
         tables_to_render.append(table)
